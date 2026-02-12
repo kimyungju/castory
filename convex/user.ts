@@ -5,9 +5,15 @@ import { internalMutation, query } from "./_generated/server";
 export const getUserById = query({
   args: { clerkId: v.string() },
   handler: async (ctx, args) => {
+    // Require authentication
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new ConvexError("Not authenticated");
+    }
+
     const user = await ctx.db
       .query("users")
-      .filter((q) => q.eq(q.field("clerkId"), args.clerkId))
+      .withIndex("by_clerkId", (q) => q.eq("clerkId", args.clerkId))
       .unique();
 
     if (!user) {
@@ -22,13 +28,20 @@ export const getUserById = query({
 export const getTopUserByPodcastCount = query({
   args: {},
   handler: async (ctx, args) => {
+    // Require authentication
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new ConvexError("Not authenticated");
+    }
+
     const user = await ctx.db.query("users").collect();
 
     const userData = await Promise.all(
       user.map(async (u) => {
+        // Use index for efficient lookup
         const podcasts = await ctx.db
           .query("podcasts")
-          .filter((q) => q.eq(q.field("authorId"), u.clerkId))
+          .withIndex("by_authorId", (q) => q.eq("authorId", u.clerkId))
           .collect();
 
         const sortedPodcasts = podcasts.sort((a, b) => b.views - a.views);
@@ -74,7 +87,7 @@ export const updateUser = internalMutation({
   async handler(ctx, args) {
     const user = await ctx.db
       .query("users")
-      .filter((q) => q.eq(q.field("clerkId"), args.clerkId))
+      .withIndex("by_clerkId", (q) => q.eq("clerkId", args.clerkId))
       .unique();
 
     if (!user) {
@@ -89,7 +102,7 @@ export const updateUser = internalMutation({
 
     const podcast = await ctx.db
       .query("podcasts")
-      .filter((q) => q.eq(q.field("authorId"), args.clerkId))
+      .withIndex("by_authorId", (q) => q.eq("authorId", args.clerkId))
       .collect();
 
     await Promise.all(
@@ -107,7 +120,7 @@ export const deleteUser = internalMutation({
   async handler(ctx, args) {
     const user = await ctx.db
       .query("users")
-      .filter((q) => q.eq(q.field("clerkId"), args.clerkId))
+      .withIndex("by_clerkId", (q) => q.eq("clerkId", args.clerkId))
       .unique();
 
     if (!user) {

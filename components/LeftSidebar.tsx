@@ -5,7 +5,7 @@ import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { cn, normalizeImageSrc } from "@/lib/utils";
 import { sidebarLinks } from "@/constants";
-import { SignedIn, SignedOut, useClerk } from "@clerk/nextjs";
+import { SignedIn, useClerk } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 
 const LeftSidebar = () => {

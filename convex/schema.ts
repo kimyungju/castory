@@ -19,6 +19,7 @@ export default defineSchema({
     audioDuration: v.number(),
     views: v.number(),
   })
+    .index("by_authorId", ["authorId"])
     .searchIndex("search_author", { searchField: "author" })
     .searchIndex("search_title", { searchField: "podcastTitle" })
     .searchIndex("search_body", { searchField: "podcastDescription" }),
@@ -28,7 +29,7 @@ export default defineSchema({
     imageUrl: v.string(),
     clerkId: v.string(),
     name: v.string(),
-  }),
+  }).index("by_clerkId", ["clerkId"]),
 
   tasks: defineTable({
     text: v.string(),
