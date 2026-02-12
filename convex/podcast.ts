@@ -55,3 +55,17 @@ export const createPodcast = mutation({
     return podcastId;
   },
 });
+
+export const getUrl = mutation({
+  args: {
+    storageId: v.id("_storage"),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new Error("Not authenticated");
+    }
+
+    return await ctx.storage.getUrl(args.storageId);
+  },
+});

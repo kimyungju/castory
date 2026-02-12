@@ -1,9 +1,12 @@
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Loader } from "lucide-react";
+import { Loader, Volume2, Play } from "lucide-react";
 import { useState } from "react";
 import type { Id } from "@/convex/_generated/dataModel";
+import { useAction, useMutation } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { toast } from "sonner";
 
 interface GeneratePodcastProps {
   voiceType: string;
@@ -23,52 +26,162 @@ const GeneratePodcast = ({
   setAudioDuration,
 }: GeneratePodcastProps) => {
   const [isGenerating, setIsGenerating] = useState(false);
+  const [audioUrl, setAudioUrl] = useState("");
+
+  const generateAudioAction = useAction(api.openai.generateAudioAction);
+  const generateUploadUrl = useMutation(api.files.generateUploadUrl);
+  const getUrl = useMutation(api.podcast.getUrl);
 
   const generatePodcast = async () => {
-    // TODO: Implement AI audio generation
+    if (!voicePrompt.trim()) {
+      toast.error("Please enter a prompt");
+      return;
+    }
+    if (!voiceType) {
+      toast.error("Please select a voice type");
+      return;
+    }
+
     setIsGenerating(true);
+    setAudioStorageId(null);
+    setAudio("");
+
     try {
-      console.log("Generate podcast with voice:", voiceType);
-      console.log("Prompt:", voicePrompt);
-      // Placeholder for future implementation
+      toast.info("Generating audio...");
+      const audioData = await generateAudioAction({
+        input: voicePrompt,
+        voice: voiceType,
+      });
+
+      const blob = new Blob([audioData], { type: "audio/mpeg" });
+      const fileName = `podcast-${Date.now()}.mp3`;
+      const file = new File([blob], fileName, { type: "audio/mpeg" });
+
+      toast.info("Uploading audio...");
+      const uploadUrl = await generateUploadUrl();
+
+      const uploadResult = await fetch(uploadUrl, {
+        method: "POST",
+        headers: { "Content-Type": file.type },
+        body: file,
+      });
+
+      if (!uploadResult.ok) {
+        throw new Error(`Upload failed: ${uploadResult.statusText}`);
+      }
+
+      const { storageId } = await uploadResult.json();
+      const url = await getUrl({ storageId });
+
+      if (!url) {
+        throw new Error("Failed to get audio URL");
+      }
+
+      setAudioStorageId(storageId);
+      setAudio(url);
+      setAudioUrl(url);
+
+      toast.success("Audio generated successfully!");
     } catch (error) {
       console.error("Error generating podcast:", error);
+      toast.error(
+        error instanceof Error
+          ? error.message
+          : "Failed to generate audio. Please try again."
+      );
+      setAudioStorageId(null);
+      setAudio("");
     } finally {
       setIsGenerating(false);
     }
   };
 
+  const handleAudioLoadedMetadata = (e: React.SyntheticEvent<HTMLAudioElement>) => {
+    const audioElement = e.currentTarget;
+    setAudioDuration(audioElement.duration);
+  };
+
   return (
-    <div>
-      <div className="flex flex-col gap-2.5">
-        <Label className="text-16 font-bold text-white-1">
-          AI Prompt to Generate Podcast
+    <div className="flex flex-col gap-6">
+      {/* Prompt Input */}
+      <div className="flex flex-col gap-3">
+        <Label className="text-16 font-bold text-white-2 uppercase tracking-wide flex items-center gap-2">
+          <div className="h-1 w-8 bg-orange-1" />
+          <Volume2 className="w-4 h-4 text-orange-1" />
+          AI Voice Prompt
         </Label>
         <Textarea
-          className="input-class font-light focus-visible:ring-offset-orange-1"
-          placeholder="Provide text to generate audio"
+          className="input-class font-medium focus-visible:ring-offset-orange-1 min-h-[140px] text-16"
+          placeholder="Enter the text you want to convert to speech..."
           rows={5}
           value={voicePrompt}
           onChange={(e) => setVoicePrompt(e.target.value)}
         />
+        <p className="text-12 text-white-4 font-serif italic">
+          Tip: Be clear and descriptive for best results. Include any special pronunciation notes.
+        </p>
       </div>
-      <div className="mt-5 w-full max-w-[200px]">
+
+      {/* Generate Button */}
+      <div className="flex gap-4 items-center">
         <Button
           type="button"
-          className="text-16 bg-orange-1 py-4 font-bold text-white-1"
+          className="btn-brutal flex-1 max-w-xs h-14 text-16"
           onClick={generatePodcast}
           disabled={isGenerating}
         >
           {isGenerating ? (
             <>
               <Loader size={20} className="animate-spin mr-2" />
-              Generating
+              Generating Audio...
             </>
           ) : (
-            "Generate"
+            <>
+              <Play size={20} className="mr-2" />
+              Generate Audio
+            </>
           )}
         </Button>
+
+        {audioUrl && (
+          <div className="flex items-center gap-2 px-4 py-2 bg-orange-1/10 border-l-4 border-orange-1">
+            <div className="h-2 w-2 bg-orange-1 rounded-full animate-pulse" />
+            <span className="text-14 text-orange-1 font-bold">Audio Ready</span>
+          </div>
+        )}
       </div>
+
+      {/* Audio Player */}
+      {audioUrl && (
+        <div className="border-4 border-orange-1 bg-charcoal p-6 noise-texture animate-slide-in-up">
+          <div className="flex items-center gap-3 mb-4">
+            <Volume2 className="w-5 h-5 text-orange-1" />
+            <h3 className="text-16 font-bold text-white-1 uppercase tracking-wide">
+              Generated Audio Preview
+            </h3>
+          </div>
+
+          <audio
+            src={audioUrl}
+            controls
+            autoPlay
+            onLoadedMetadata={handleAudioLoadedMetadata}
+            className="w-full h-12 [&::-webkit-media-controls-panel]:bg-dark-gray [&::-webkit-media-controls-play-button]:text-orange-1"
+            style={{
+              filter: 'drop-shadow(0 4px 6px rgba(0, 0, 0, 0.5))',
+            }}
+          />
+
+          {/* Decorative Elements */}
+          <div className="mt-4 flex items-center gap-2">
+            <div className="h-1 flex-1 bg-orange-1/20" />
+            <span className="text-10 uppercase tracking-widest text-white-4 font-bold px-2">
+              AI Generated
+            </span>
+            <div className="h-1 flex-1 bg-orange-1/20" />
+          </div>
+        </div>
+      )}
     </div>
   );
 };
