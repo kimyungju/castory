@@ -2,7 +2,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader, ImageIcon, Upload } from "lucide-react";
+import { Loader, ImageIcon, Upload, Sparkles } from "lucide-react";
 import Image from "next/image";
 import { useRef, useState } from "react";
 import type { ChangeEvent } from "react";
@@ -11,6 +11,8 @@ import { useAction, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { usePromptEnhancer } from "@/hooks/usePromptEnhancer";
+import PromptReviewModal from "@/components/PromptReviewModal";
 
 interface GenerateThumbnailProps {
   setImageStorageId: (id: Id<"_storage"> | null) => void;
@@ -30,6 +32,12 @@ const GenerateThumbnail = ({
   const [isAiThumbnail, setIsAiThumbnail] = useState(true);
   const [isImageLoading, setIsImageLoading] = useState(false);
   const imageRef = useRef<HTMLInputElement>(null);
+
+  const enhancer = usePromptEnhancer({
+    type: "image",
+    currentPrompt: imagePrompt,
+    setPrompt: setImagePrompt,
+  });
 
   const generateThumbnailAction = useAction(api.openai.generateThumbnailAction);
   const generateUploadUrl = useMutation(api.files.generateUploadUrl);
@@ -159,9 +167,25 @@ const GenerateThumbnail = ({
               value={imagePrompt}
               onChange={(e) => setImagePrompt(e.target.value)}
             />
-            <p className="text-12 text-white-4 font-serif italic">
-              Tip: Be specific about colors, style, and composition for best results.
-            </p>
+            <div className="flex items-center justify-between">
+              <p className="text-12 text-white-4 font-serif italic">
+                Tip: Be specific about colors, style, and composition for best results.
+              </p>
+              <Button
+                type="button"
+                variant="plain"
+                className="text-12 text-orange-1 hover:text-orange-1/80 uppercase tracking-wide flex items-center gap-1.5 px-3 py-1.5 border border-orange-1/30 hover:border-orange-1/60 transition-all"
+                onClick={enhancer.enhance}
+                disabled={enhancer.state === "loading" || isImageLoading}
+              >
+                {enhancer.state === "loading" ? (
+                  <Loader size={14} className="animate-spin" />
+                ) : (
+                  <Sparkles size={14} />
+                )}
+                Enhance
+              </Button>
+            </div>
           </div>
 
           <div className="flex gap-4 items-center">
@@ -253,6 +277,19 @@ const GenerateThumbnail = ({
           </div>
         </div>
       )}
+
+      <PromptReviewModal
+        isOpen={enhancer.isModalOpen}
+        onClose={enhancer.closeModal}
+        originalPrompt={enhancer.originalPrompt}
+        enhancedPrompt={enhancer.enhancedPrompt}
+        isEditing={enhancer.state === "editing"}
+        onAccept={enhancer.accept}
+        onReject={enhancer.reject}
+        onStartEditing={enhancer.startEditing}
+        onConfirmEdit={enhancer.confirmEdit}
+        type="image"
+      />
     </div>
   );
 };
