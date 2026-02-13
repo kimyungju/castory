@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useMutation } from "convex/react";
 import { useRouter } from "next/navigation";
 import { Loader, Mic2, Image as ImageIcon, Sparkles } from "lucide-react";
@@ -32,6 +32,7 @@ import {
 import { voiceCategories } from "@/constants";
 import GeneratePodcast from "@/components/GeneratePodcast";
 import GenerateThumbnail from "@/components/GenerateThumbnail";
+import { readDraft, useDraftSave } from "@/lib/useDraftPersistence";
 
 const formSchema = z.object({
   podcastTitle: z.string().min(2, {
@@ -68,6 +69,61 @@ const CreatePodcast = () => {
     },
   });
 
+  // --- Draft persistence ---
+  const DRAFT_KEY = "podcastr:draft:podcast";
+  const restoredRef = useRef(false);
+
+  // Restore draft on mount
+  useEffect(() => {
+    if (restoredRef.current) return;
+    restoredRef.current = true;
+
+    interface PodcastDraft {
+      podcastTitle?: string;
+      podcastDescription?: string;
+      voiceType?: string | null;
+      voicePrompt?: string;
+      imagePrompt?: string;
+    }
+
+    const draft = readDraft<PodcastDraft>(DRAFT_KEY);
+    if (!draft) return;
+
+    if (draft.podcastTitle || draft.podcastDescription) {
+      form.reset({
+        podcastTitle: draft.podcastTitle ?? "",
+        podcastDescription: draft.podcastDescription ?? "",
+      });
+    }
+    if (draft.voiceType !== undefined) setVoiceType(draft.voiceType);
+    if (draft.voicePrompt) setVoicePrompt(draft.voicePrompt);
+    if (draft.imagePrompt) setImagePrompt(draft.imagePrompt);
+
+    toast.info("Draft restored");
+  }, [form]);
+
+  // Derive draft state from form + component state
+  const formValues = form.watch();
+  const draftState = {
+    podcastTitle: formValues.podcastTitle,
+    podcastDescription: formValues.podcastDescription,
+    voiceType,
+    voicePrompt,
+    imagePrompt,
+  };
+
+  const { lastSaved, clearDraft } = useDraftSave(DRAFT_KEY, draftState);
+
+  // Warn before closing tab during submission
+  useEffect(() => {
+    if (!isSubmitting) return;
+    const handler = (e: BeforeUnloadEvent) => {
+      e.preventDefault();
+    };
+    window.addEventListener("beforeunload", handler);
+    return () => window.removeEventListener("beforeunload", handler);
+  }, [isSubmitting]);
+
   async function onSubmit(data: z.infer<typeof formSchema>) {
     try {
       setIsSubmitting(true);
@@ -101,10 +157,13 @@ const CreatePodcast = () => {
       });
 
       toast.success("Podcast published successfully!");
+      clearDraft();
       router.push("/");
     } catch (error) {
       console.error("Error creating podcast:", error);
-      toast.error("Failed to publish podcast. Please try again.");
+      const message =
+        error instanceof Error ? error.message : "Unknown error";
+      toast.error(`Failed to publish podcast: ${message}`);
       setIsSubmitting(false);
     }
   }
@@ -114,7 +173,7 @@ const CreatePodcast = () => {
       {/* Header Section - Editorial Style */}
       <div className="relative mb-12 pb-8 border-b-4 border-orange-1">
         <div className="flex items-start justify-between">
-          <div>
+          <div className="lg:pr-44">
             <div className="flex items-center gap-3 mb-2">
               <div className="h-2 w-2 bg-orange-1 rounded-full animate-pulse-glow" />
               <span className="text-12 uppercase tracking-widest text-white-4 font-bold">
@@ -127,11 +186,16 @@ const CreatePodcast = () => {
             <p className="text-16 text-white-4 font-serif italic max-w-2xl">
               Transform your ideas into audio experiences with AI-powered voice generation
             </p>
+            {lastSaved && (
+              <p className="text-12 text-white-4 mt-2">
+                Draft saved {lastSaved.toLocaleTimeString()}
+              </p>
+            )}
           </div>
 
           {/* Decorative Corner Element */}
           <div className="hidden lg:block">
-            <div className="relative w-32 h-32">
+            <div className="relative w-32 h-32 overflow-hidden">
               <div className="absolute top-0 right-0 w-24 h-24 border-4 border-orange-1 transform rotate-45" />
               <div className="absolute top-4 right-4 w-16 h-16 bg-orange-1/20" />
             </div>
@@ -145,7 +209,7 @@ const CreatePodcast = () => {
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(onSubmit)}
-          className="flex w-full flex-col gap-12"
+          className="flex w-full flex-col gap-14"
         >
           {/* Section 1: Basic Info */}
           <div className="card-brutal p-8 animate-slide-in-up">
@@ -202,7 +266,7 @@ const CreatePodcast = () => {
           </div>
 
           {/* Section 2: Voice Selection */}
-          <div className="card-brutal p-8 animate-slide-in-up stagger-1">
+          <div className="card-brutal p-8 animate-slide-in-up stagger-1 relative z-10">
             <div className="flex items-center gap-3 mb-6">
               <Mic2 className="w-6 h-6 text-orange-1" />
               <h2 className="text-24 font-black text-white-1 uppercase tracking-wide">
@@ -217,16 +281,16 @@ const CreatePodcast = () => {
               </label>
               <Select onValueChange={(value) => setVoiceType(value)}>
                 <SelectTrigger
-                  className={`text-16 w-full border-4 border-mid-gray bg-charcoal text-white-1 focus-visible:ring-offset-orange-1 font-medium h-14 ${
-                    !voiceType && "text-gray-1"
+                  className={`text-16 w-full border-4 border-[var(--color-mid-gray)] bg-[var(--color-charcoal)] text-white-1 focus-visible:ring-offset-orange-1 font-medium h-14 ${
+                    !voiceType && "text-white-4"
                   }`}
                 >
                   <SelectValue
                     placeholder="Choose an AI voice..."
-                    className="placeholder:text-gray-1"
+                    className="placeholder:text-white-4"
                   />
                 </SelectTrigger>
-                <SelectContent className="text-16 border-4 border-orange-1 bg-charcoal font-bold text-white-1 focus:ring-orange-1">
+                <SelectContent position="popper" sideOffset={4} className="text-16 border-4 border-orange-1 bg-[var(--color-charcoal)] font-bold text-white-1 focus:ring-orange-1 z-[999]">
                   {voiceCategories.map((category) => (
                     <SelectItem
                       key={category}

@@ -31,8 +31,9 @@ const PodcastCard = ({
   };
 
   return (
-    <div
-      className="cursor-pointer group animate-rotate-in"
+    <button
+      type="button"
+      className="cursor-pointer group animate-rotate-in text-left w-full"
       onClick={handleClick}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -94,7 +95,7 @@ const PodcastCard = ({
           </div>
         </div>
       </figure>
-    </div>
+    </button>
   );
 };
 

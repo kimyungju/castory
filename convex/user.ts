@@ -57,7 +57,9 @@ export const getTopUserByPodcastCount = query({
       })
     );
 
-    return userData.sort((a, b) => b.totalPodcasts - a.totalPodcasts);
+    return userData
+      .filter((u) => u.totalPodcasts > 0)
+      .sort((a, b) => b.totalPodcasts - a.totalPodcasts);
   },
 });
 
@@ -83,6 +85,7 @@ export const updateUser = internalMutation({
     clerkId: v.string(),
     imageUrl: v.string(),
     email: v.string(),
+    name: v.string(),
   },
   async handler(ctx, args) {
     const user = await ctx.db
@@ -98,6 +101,7 @@ export const updateUser = internalMutation({
     await ctx.db.patch(user._id, {
       imageUrl: args.imageUrl,
       email: args.email,
+      name: args.name,
     });
 
     const podcast = await ctx.db
@@ -109,6 +113,7 @@ export const updateUser = internalMutation({
       podcast.map(async (p) => {
         await ctx.db.patch(p._id, {
           authorImageUrl: args.imageUrl,
+          author: args.name,
         });
       })
     );

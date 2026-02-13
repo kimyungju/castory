@@ -34,6 +34,10 @@ const handleClerkWebhook = httpAction(async (ctx, request) => {
     case "user.updated": {
       const primaryEmail = event.data.email_addresses?.[0]?.email_address;
       const email = primaryEmail ?? `${event.data.id}@clerk.user`;
+      const name =
+        event.data.first_name ??
+        primaryEmail?.split("@")[0] ??
+        "Unknown";
 
       console.log("clerk webhook: user.updated", event.data.id);
 
@@ -41,6 +45,7 @@ const handleClerkWebhook = httpAction(async (ctx, request) => {
         clerkId: event.data.id,
         imageUrl: event.data.image_url ?? "",
         email,
+        name,
       });
       break;
     }

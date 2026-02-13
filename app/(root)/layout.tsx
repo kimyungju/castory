@@ -4,6 +4,7 @@ import Image from "next/image";
 import LeftSidebar from "@/components/LeftSidebar";
 import RightSidebar from "@/components/RightSidebar";
 import MobileNav from "@/components/MobileNav";
+import PodcastPlayer from "@/components/PodcastPlayer";
 import { Authenticated, AuthLoading, Unauthenticated } from "convex/react";
 import { useRouter } from "next/navigation";
 import { Loader } from "lucide-react";
@@ -43,7 +44,7 @@ export default function RootGroupLayout({
               <div className="flex h-16 items-center justify-between md:hidden">
                 <Image
                   src="/icons/logo.svg"
-                  alt="menu icon"
+                  alt="Podcastr logo"
                   width={30}
                   height={30}
                 />
@@ -55,6 +56,7 @@ export default function RootGroupLayout({
 
           <RightSidebar />
         </main>
+        <PodcastPlayer />
       </Authenticated>
     </div>
   );

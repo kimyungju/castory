@@ -44,6 +44,7 @@ const PodcastDetails = () => {
         imageUrl={podcast.imageUrl ?? ""}
         authorImageUrl={podcast.authorImageUrl}
         isOwner={isOwner}
+        podcastId={podcastId}
       />
 
       <div className="flex flex-col gap-4">

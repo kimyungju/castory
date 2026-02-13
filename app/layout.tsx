@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Syne, Crimson_Pro } from "next/font/google";
 import "./globals.css";
 import ConvexClerkProvider from "./providers/ConvexClerkProvider";
+import { AudioProvider } from "./providers/AudioProvider";
 import { Toaster } from "sonner";
 
 const syne = Syne({
@@ -36,8 +37,10 @@ export default function RootLayout({
         className={`${syne.variable} ${crimsonPro.variable} antialiased`}
       >
         <ConvexClerkProvider>
-          {children}
-          <Toaster position="top-center" richColors />
+          <AudioProvider>
+            {children}
+            <Toaster position="top-center" richColors />
+          </AudioProvider>
         </ConvexClerkProvider>
       </body>
     </html>

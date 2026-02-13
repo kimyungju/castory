@@ -1,10 +1,8 @@
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Loader, Volume2, Play, Sparkles } from "lucide-react";
+import { Loader, Volume2, Play } from "lucide-react";
 import { useState } from "react";
-import { usePromptEnhancer } from "@/hooks/usePromptEnhancer";
-import PromptReviewModal from "@/components/PromptReviewModal";
 import type { Id } from "@/convex/_generated/dataModel";
 import { useAction, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
@@ -29,12 +27,6 @@ const GeneratePodcast = ({
 }: GeneratePodcastProps) => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [audioUrl, setAudioUrl] = useState("");
-
-  const enhancer = usePromptEnhancer({
-    type: "audio",
-    currentPrompt: voicePrompt,
-    setPrompt: setVoicePrompt,
-  });
 
   const generateAudioAction = useAction(api.openai.generateAudioAction);
   const generateUploadUrl = useMutation(api.files.generateUploadUrl);
@@ -125,25 +117,9 @@ const GeneratePodcast = ({
           value={voicePrompt}
           onChange={(e) => setVoicePrompt(e.target.value)}
         />
-        <div className="flex items-center justify-between">
-          <p className="text-12 text-white-4 font-serif italic">
-            Tip: Be clear and descriptive for best results. Include any special pronunciation notes.
-          </p>
-          <Button
-            type="button"
-            variant="plain"
-            className="text-12 text-orange-1 hover:text-orange-1/80 uppercase tracking-wide flex items-center gap-1.5 px-3 py-1.5 border border-orange-1/30 hover:border-orange-1/60 transition-all"
-            onClick={enhancer.enhance}
-            disabled={enhancer.state === "loading" || isGenerating}
-          >
-            {enhancer.state === "loading" ? (
-              <Loader size={14} className="animate-spin" />
-            ) : (
-              <Sparkles size={14} />
-            )}
-            Enhance
-          </Button>
-        </div>
+        <p className="text-12 text-white-4 font-serif italic">
+          Tip: Be clear and descriptive for best results. Include any special pronunciation notes.
+        </p>
       </div>
 
       {/* Generate Button */}
@@ -207,18 +183,6 @@ const GeneratePodcast = ({
         </div>
       )}
 
-      <PromptReviewModal
-        isOpen={enhancer.isModalOpen}
-        onClose={enhancer.closeModal}
-        originalPrompt={enhancer.originalPrompt}
-        enhancedPrompt={enhancer.enhancedPrompt}
-        isEditing={enhancer.state === "editing"}
-        onAccept={enhancer.accept}
-        onReject={enhancer.reject}
-        onStartEditing={enhancer.startEditing}
-        onConfirmEdit={enhancer.confirmEdit}
-        type="audio"
-      />
     </div>
   );
 };

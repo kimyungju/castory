@@ -45,3 +45,14 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+.vercel
+
+# clerk configuration (can include secrets)
+/.clerk/
+
+# local tooling
+.agents/
+.claude/
+.mcp.json
+nul

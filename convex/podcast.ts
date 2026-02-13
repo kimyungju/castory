@@ -130,6 +130,42 @@ export const getPodcastByAuthorId = query({
   },
 });
 
+export const deletePodcast = mutation({
+  args: { podcastId: v.id("podcasts") },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+    if (!identity) {
+      throw new ConvexError("Not authenticated");
+    }
+
+    const podcast = await ctx.db.get(args.podcastId);
+    if (!podcast) {
+      throw new ConvexError("Podcast not found");
+    }
+
+    if (podcast.authorId !== identity.subject) {
+      throw new ConvexError("Not authorized to delete this podcast");
+    }
+
+    try {
+      if (podcast.audioStorageId) {
+        await ctx.storage.delete(podcast.audioStorageId);
+      }
+    } catch {
+      // Storage file may already be deleted; continue
+    }
+    try {
+      if (podcast.imageStorageId) {
+        await ctx.storage.delete(podcast.imageStorageId);
+      }
+    } catch {
+      // Storage file may already be deleted; continue
+    }
+
+    return await ctx.db.delete(args.podcastId);
+  },
+});
+
 export const getUrl = mutation({
   args: {
     storageId: v.id("_storage"),
@@ -137,7 +173,7 @@ export const getUrl = mutation({
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
     if (!identity) {
-      throw new Error("Not authenticated");
+      throw new ConvexError("Not authenticated");
     }
 
     return await ctx.storage.getUrl(args.storageId);

@@ -31,8 +31,4 @@ export default defineSchema({
     name: v.string(),
   }).index("by_clerkId", ["clerkId"]),
 
-  tasks: defineTable({
-    text: v.string(),
-    isCompleted: v.boolean(),
-  }),
 });
