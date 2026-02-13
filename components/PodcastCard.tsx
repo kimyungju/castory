@@ -14,7 +14,7 @@ const PodcastCard = ({
   imgURL: string;
   title: string;
   description: string;
-  podcastId: number;
+  podcastId: number | string;
 }) => {
   const [src, setSrc] = React.useState(() => normalizeImageSrc(imgURL));
   const [isHovered, setIsHovered] = React.useState(false);

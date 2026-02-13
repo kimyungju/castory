@@ -7,6 +7,7 @@ import { useState } from "react";
 import { useMutation } from "convex/react";
 import { useRouter } from "next/navigation";
 import { Loader, Mic2, Image as ImageIcon, Sparkles } from "lucide-react";
+import { toast } from "sonner";
 
 import { api } from "@/convex/_generated/api";
 import type { Id } from "@/convex/_generated/dataModel";
@@ -73,13 +74,13 @@ const CreatePodcast = () => {
 
       // Validate all required fields
       if (!audioUrl || !imageUrl || !voiceType) {
-        console.error("Please generate audio and image");
+        toast.error("Please generate audio and thumbnail first");
         setIsSubmitting(false);
         return;
       }
 
       if (!audioStorageId || !imageStorageId) {
-        console.error("Missing storage IDs");
+        toast.error("Missing storage IDs — please regenerate");
         setIsSubmitting(false);
         return;
       }
@@ -99,10 +100,11 @@ const CreatePodcast = () => {
         imageStorageId,
       });
 
-      console.log("Podcast created successfully:", podcastId);
-      router.push(`/podcast/${podcastId}`);
+      toast.success("Podcast published successfully!");
+      router.push("/");
     } catch (error) {
       console.error("Error creating podcast:", error);
+      toast.error("Failed to publish podcast. Please try again.");
       setIsSubmitting(false);
     }
   }
