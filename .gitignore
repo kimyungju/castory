@@ -27,6 +27,9 @@
 # local project instructions
 CLAUDE.md
 
+# memory files
+.memory/
+
 # debug
 npm-debug.log*
 yarn-debug.log*
