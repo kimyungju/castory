@@ -39,8 +39,8 @@ export default function RootGroupLayout({
         <main className="relative flex bg-black-3">
           <LeftSidebar />
 
-          <section className="flex min-h-screen flex-1 flex-col px-4 sm:px-14">
-            <div className="mx-auto flex w-full max-w-5xl flex-col max-sm:px-4">
+          <section className="flex min-h-screen min-w-0 flex-1 flex-col px-4 sm:px-8 lg:px-14">
+            <div className="mx-auto flex w-full min-w-0 max-w-5xl flex-col">
               <div className="flex h-16 items-center justify-between md:hidden">
                 <Image
                   src="/icons/logo.svg"
