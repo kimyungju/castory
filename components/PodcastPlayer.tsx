@@ -90,9 +90,9 @@ const PodcastPlayer = () => {
   const progress = duration > 0 ? (currentTime / duration) * 100 : 0;
 
   return (
-    <div className="sticky bottom-0 left-0 flex flex-col w-full z-40">
+    <div className="sticky bottom-0 left-0 flex flex-col w-full z-40 max-sm:max-h-[140px]">
       <Progress value={progress} className="h-1 rounded-none" />
-      <div className="glassmorphism flex items-center justify-between px-4 py-3 gap-4 max-sm:flex-col max-sm:gap-2">
+      <div className="glassmorphism flex items-center justify-between px-4 py-3 gap-4 max-sm:flex-col max-sm:gap-2 max-sm:overflow-hidden">
         <div className="flex items-center gap-3 min-w-0">
           <Link href={`/podcast/${audio.podcastId}`}>
             <Image
