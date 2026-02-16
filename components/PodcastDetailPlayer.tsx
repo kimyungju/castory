@@ -60,8 +60,8 @@ const PodcastDetailPlayer = ({
 
   return (
     <div className="flex flex-col gap-8 max-w-[720px]">
-      <div className="flex items-center gap-6">
-        <div className="card-brutal overflow-hidden w-[250px] h-[250px] flex-shrink-0">
+      <div className="flex items-center gap-6 max-sm:flex-col max-sm:items-start">
+        <div className="card-brutal overflow-hidden w-[250px] h-[250px] max-sm:w-[180px] max-sm:h-[180px] flex-shrink-0">
           <Image
             src={imgSrc}
             width={250}
