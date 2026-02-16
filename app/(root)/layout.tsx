@@ -51,6 +51,9 @@ export default function RootGroupLayout({
                 <MobileNav />
               </div>
               <div className="flex flex-col md:pb-14">{children}</div>
+              <div className="xl:hidden mt-8 pb-8">
+                <RightSidebar inline />
+              </div>
             </div>
           </section>
 

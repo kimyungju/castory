@@ -13,7 +13,7 @@ import Carousel from "./Carousel";
 import LoaderSpinner from "./LoaderSpinner";
 import { ChevronRight } from "lucide-react";
 
-const RightSidebar = () => {
+const RightSidebar = ({ inline = false }: { inline?: boolean }) => {
   const router = useRouter();
   const { user } = useUser();
   const topPodcasters = useQuery(api.user.getTopUserByPodcastCount);
@@ -21,8 +21,8 @@ const RightSidebar = () => {
 
   if (!topPodcasters) return <LoaderSpinner />;
 
-  return (
-    <section className={cn("right_sidebar text-white-1", { "h-[calc(100vh-140px)]": audio?.audioUrl })}>
+  const content = (
+    <>
       <SignedIn>
         <Link
           href={`/profile/${user?.id}`}
@@ -72,6 +72,16 @@ const RightSidebar = () => {
           ))}
         </div>
       </section>
+    </>
+  );
+
+  if (inline) {
+    return <div className="space-y-6 text-white-1">{content}</div>;
+  }
+
+  return (
+    <section className={cn("right_sidebar text-white-1", { "h-[calc(100vh-140px)]": audio?.audioUrl })}>
+      {content}
     </section>
   );
 };
