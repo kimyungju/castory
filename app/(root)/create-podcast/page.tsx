@@ -375,7 +375,7 @@ const CreatePodcast = () => {
             </Button>
 
             {/* Status Indicators */}
-            <div className="mt-6 grid grid-cols-3 gap-4">
+            <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className={`p-4 border-4 ${audioUrl ? 'border-orange-1 bg-orange-1/10' : 'border-mid-gray bg-charcoal'} text-center`}>
                 <p className="text-12 uppercase tracking-wide text-white-4 mb-1">Audio</p>
                 <p className={`text-14 font-bold ${audioUrl ? 'text-orange-1' : 'text-white-4'}`}>
