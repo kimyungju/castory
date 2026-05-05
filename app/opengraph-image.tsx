@@ -97,10 +97,10 @@ export default async function OpengraphImage() {
         >
           <div
             style={{
-              fontSize: 96,
+              fontSize: 80,
               fontWeight: 800,
               color: "#fafafa",
-              letterSpacing: -3,
+              letterSpacing: -2.5,
               lineHeight: 1.0,
             }}
           >
@@ -108,12 +108,12 @@ export default async function OpengraphImage() {
           </div>
           <div
             style={{
-              fontSize: 60,
+              fontSize: 52,
               color: "#ff6b35",
               fontStyle: "italic",
               fontFamily: "Crimson Pro, serif",
               fontWeight: 600,
-              marginTop: 6,
+              marginTop: 4,
               lineHeight: 1.0,
             }}
           >
@@ -121,24 +121,24 @@ export default async function OpengraphImage() {
           </div>
           <div
             style={{
-              width: 80,
-              height: 5,
+              width: 72,
+              height: 4,
               background: "#ff6b35",
-              marginTop: 28,
+              marginTop: 26,
             }}
           />
           <div
             style={{
               fontSize: 22,
               color: "#a0a0a0",
-              marginTop: 22,
+              marginTop: 20,
               maxWidth: 760,
               lineHeight: 1.45,
               fontFamily: "sans-serif",
               fontWeight: 400,
             }}
           >
-            Pick a topic. We generate the script, voice, and cover art with GPT-4.1-mini, TTS-1, and DALL-E 3.
+            Pick a topic. We handle script, voice, and cover art.
           </div>
         </div>
 
