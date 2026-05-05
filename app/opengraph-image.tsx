@@ -92,27 +92,28 @@ export default async function OpengraphImage() {
             display: "flex",
             flexDirection: "column",
             justifyContent: "center",
+            paddingTop: 24,
           }}
         >
           <div
             style={{
-              fontSize: 132,
+              fontSize: 96,
               fontWeight: 800,
               color: "#fafafa",
-              letterSpacing: -4,
-              lineHeight: 0.92,
+              letterSpacing: -3,
+              lineHeight: 1.0,
             }}
           >
             Make a podcast
           </div>
           <div
             style={{
-              fontSize: 84,
+              fontSize: 60,
               color: "#ff6b35",
               fontStyle: "italic",
               fontFamily: "Crimson Pro, serif",
               fontWeight: 600,
-              marginTop: 4,
+              marginTop: 6,
               lineHeight: 1.0,
             }}
           >
@@ -120,18 +121,18 @@ export default async function OpengraphImage() {
           </div>
           <div
             style={{
-              width: 88,
-              height: 6,
+              width: 80,
+              height: 5,
               background: "#ff6b35",
               marginTop: 28,
             }}
           />
           <div
             style={{
-              fontSize: 26,
+              fontSize: 22,
               color: "#a0a0a0",
-              marginTop: 24,
-              maxWidth: 800,
+              marginTop: 22,
+              maxWidth: 760,
               lineHeight: 1.45,
               fontFamily: "sans-serif",
               fontWeight: 400,
