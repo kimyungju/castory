@@ -21,10 +21,30 @@ const crimsonPro = Crimson_Pro({
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
-  title: "Castory",
-  description: "AI-powered podcast platform for tech and cybersecurity news",
+  metadataBase: new URL("https://castory-ai.vercel.app"),
+  title: {
+    default: "Castory — AI Podcast Platform",
+    template: "%s | Castory",
+  },
+  description:
+    "AI-powered podcast platform that turns trending news or custom topics into polished episodes — script, voice, and cover art — in minutes.",
   icons: {
     icon: "/icons/logo.svg",
+  },
+  openGraph: {
+    title: "Castory — AI Podcast Platform",
+    description:
+      "Turn trending news or custom topics into polished podcasts — script, voice, and cover art — in minutes.",
+    url: "https://castory-ai.vercel.app",
+    siteName: "Castory",
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Castory — AI Podcast Platform",
+    description:
+      "Turn trending news or custom topics into polished podcasts — script, voice, and cover art — in minutes.",
   },
 };
 
